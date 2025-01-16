@@ -71,6 +71,17 @@ export const createSensoriceDevice = async (req: Request, res: Response) => {
       return notFound(res, "Field not found");
     }
 
+    // check machineId
+    const isMachineExist = await db.sensoriceDevice.findUnique({
+      where: {
+        machineId: validateBody.data.machineId,
+      },
+    });
+
+    if (isMachineExist) {
+      return notFound(res, "Machine already exist");
+    }
+
     // Create product
     const product = await db.sensoriceDevice.create({
       data: {
