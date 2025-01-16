@@ -75,7 +75,7 @@ router.post(
   getUserProduct
 );
 
-router.get(
+router.post(
   "/byFieldId",
   // verifyJWT,
   // verifyRole(["ADMIN", "CUSTOMER"]),

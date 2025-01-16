@@ -344,7 +344,7 @@ export const getUserProduct = async (req: Request, res: Response) => {
 // Get product by field ID
 export const getProductsByFieldId = async (req: Request, res: Response) => {
   try {
-    const validateBody = sensoriceDeviceSchema.safeParse(req.body.fieldId);
+    const validateBody = idSchema.safeParse(req.body);
     if (!validateBody.success) {
       return validationError(res, parseZodError(validateBody.error));
     }
@@ -355,6 +355,10 @@ export const getProductsByFieldId = async (req: Request, res: Response) => {
         // userId: req.user?.id,
       },
     });
+
+    if (products.length === 0) {
+      return notFound(res, "Products not found");
+    }
 
     return success(res, "Products by field ID", products);
   } catch (err) {
