@@ -12,6 +12,7 @@ import notification from "@/utils/notification";
 import { idSchema } from "@/models/id.model";
 
 import {
+  sensoriceDeviceIdSchema,
   sensoriceDeviceSchema,
   sensoriceDeviceUpdateSchema,
 } from "@/models/sensoriceDevice.model";
@@ -57,12 +58,25 @@ export const createSensoriceDevice = async (req: Request, res: Response) => {
       return internalServerError(res);
     }
 
+    // is location exist?
+
+    const isLocationExist = await db.field.findUnique({
+      where: {
+        // mount to userid for production
+        id: validateBody.data.fieldId,
+      },
+    });
+
+    if (!isLocationExist) {
+      return notFound(res, "Field not found");
+    }
+
     // Create product
     const product = await db.sensoriceDevice.create({
       data: {
         id: productId,
         machineId: req.body.machineId,
-        location: req.body.location,
+        fieldId: validateBody.data.fieldId,
         userId: req.user?.id,
       },
     });
@@ -115,7 +129,7 @@ export const updateSensoriceDevice = async (req: Request, res: Response) => {
 
     const product = await db.sensoriceDevice.findUnique({
       where: {
-        machineId: req.body.machineId,
+        machineId: validateBody.data.machineId,
       },
     });
 
@@ -128,9 +142,9 @@ export const updateSensoriceDevice = async (req: Request, res: Response) => {
         machineId: req.body.machineId,
       },
       data: {
-        location: req.body.location,
+        fieldId: validateBody.data.fieldId,
         updatedAt: new Date(),
-        userId: req.user?.id,
+        // userId: req.user?.id,
       },
     });
 
@@ -205,7 +219,7 @@ export const getAllSensoriceDevices = async (req: Request, res: Response) => {
 // Get product by ID
 export const getSensoriceDevice = async (req: Request, res: Response) => {
   try {
-    const validateBody = idSchema.safeParse(req.body.machineId);
+    const validateBody = sensoriceDeviceIdSchema.safeParse(req.body);
     if (!validateBody.success) {
       return validationError(res, parseZodError(validateBody.error));
     }
@@ -213,6 +227,11 @@ export const getSensoriceDevice = async (req: Request, res: Response) => {
     const product = await db.sensoriceDevice.findUnique({
       where: {
         machineId: req.body.machineId,
+      },
+      select: {
+        id: true,
+        machineId: true,
+        fieldId: true,
       },
     });
 
@@ -239,7 +258,7 @@ export const getAllIrrigationProducts = async (req: Request, res: Response) => {
 // Get irrigation product by ID
 export const getIrrigationProduct = async (req: Request, res: Response) => {
   try {
-    const validateBody = idSchema.safeParse(req.body.machineId);
+    const validateBody = sensoriceDeviceIdSchema.safeParse(req.body.machineId);
     if (!validateBody.success) {
       return validationError(res, parseZodError(validateBody.error));
     }
@@ -247,6 +266,11 @@ export const getIrrigationProduct = async (req: Request, res: Response) => {
     const product = await db.sensoriceIrrigation.findUnique({
       where: {
         machineId: req.body.machineId,
+      },
+      select: {
+        id: true,
+        machineId: true,
+        pumpState: true,
       },
     });
 
@@ -278,15 +302,21 @@ export const getUserProducts = async (req: Request, res: Response) => {
 // Get user product by id
 export const getUserProduct = async (req: Request, res: Response) => {
   try {
-    const validateBody = idSchema.safeParse(req.body.machineId);
+    const validateBody = idSchema.safeParse(req.body);
     if (!validateBody.success) {
       return validationError(res, parseZodError(validateBody.error));
     }
 
+    // check if user is owner of the product
     const product = await db.sensoriceDevice.findUnique({
       where: {
-        machineId: req.body.machineId,
+        id: validateBody.data.id,
         userId: req.user?.id,
+      },
+      select: {
+        id: true,
+        machineId: true,
+        fieldId: true,
       },
     });
 
@@ -295,6 +325,27 @@ export const getUserProduct = async (req: Request, res: Response) => {
     }
 
     return success(res, "User product", product);
+  } catch (err) {
+    internalServerError(res);
+  }
+};
+
+// Get product by field ID
+export const getProductsByFieldId = async (req: Request, res: Response) => {
+  try {
+    const validateBody = sensoriceDeviceSchema.safeParse(req.body.fieldId);
+    if (!validateBody.success) {
+      return validationError(res, parseZodError(validateBody.error));
+    }
+
+    const products = await db.sensoriceDevice.findMany({
+      where: {
+        fieldId: req.body.fieldId,
+        // userId: req.user?.id,
+      },
+    });
+
+    return success(res, "Products by field ID", products);
   } catch (err) {
     internalServerError(res);
   }

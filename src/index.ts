@@ -13,12 +13,14 @@ import dashboardRoute from "@/routes/dashboard.route";
 import notificationRoute from "@/routes/notification.route";
 import device from "@/routes/sensoriceDevice.route";
 import command from "@/routes/command.route";
+import read from "@/routes/sensorReading.route";
+import field from "@/routes/fields.route";
 
 const app = express();
 
 // [CORS]
 const allowedOrigins = [
-  "https://localhost:5173", // dev client
+  "http://localhost:5173", // dev client
   //   "https://onlyjun.xyz", // testing
 ];
 
@@ -53,6 +55,8 @@ app.use("/dashboard", dashboardRoute);
 app.use("/notif", notificationRoute);
 app.use("/device", device);
 app.use("/command", command);
+app.use("/read", read);
+app.use("/field", field);
 
 // [Global 404]
 app.all("*", (_req: Request, res: Response) => {

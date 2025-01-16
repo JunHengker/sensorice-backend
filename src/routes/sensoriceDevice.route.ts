@@ -10,6 +10,7 @@ import {
   getIrrigationProduct,
   getUserProducts,
   getUserProduct,
+  getProductsByFieldId,
 } from "@/controllers/sensoriceDevice.controller";
 
 import verifyRole from "@/middlewares/verifyRole.middleware";
@@ -40,7 +41,7 @@ router.get(
   //  verifyRole(["ADMIN"]),
   getAllSensoriceDevices
 );
-router.get(
+router.post(
   "/byId",
   // verifyJWT,
   // verifyRole(["ADMIN"]),
@@ -54,7 +55,7 @@ router.get(
   getAllIrrigationProducts
 );
 
-router.get(
+router.post(
   "/irrigation/byId",
   // verifyJWT,
   // verifyRole(["ADMIN"]),
@@ -67,11 +68,18 @@ router.get(
   // verifyRole(["ADMIN", "CUSTOMER"]),
   getUserProducts
 );
-router.get(
+router.post(
   "/user/byId",
   // verifyJWT,
   // verifyRole(["ADMIN", "CUSTOMER"]),
   getUserProduct
+);
+
+router.get(
+  "/byFieldId",
+  // verifyJWT,
+  // verifyRole(["ADMIN", "CUSTOMER"]),
+  getProductsByFieldId
 );
 
 export default router;

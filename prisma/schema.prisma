@@ -15,6 +15,7 @@ model User {
     password  String
     role      Role              @default(CUSTOMER)
     devices   SensoriceDevice[]
+    fields    field[]
     createdAt DateTime          @default(now())
     updatedAt DateTime          @updatedAt
 }
@@ -24,16 +25,28 @@ enum Role {
     ADMIN
 }
 
+model field {
+    id         Int               @id @default(autoincrement())
+    userId     Int?
+    owner      User?             @relation(fields: [userId], references: [id])
+    name       String
+    coordinate String
+    device     SensoriceDevice[]
+    createdAt  DateTime          @default(now())
+    updatedAt  DateTime          @updatedAt
+}
+
 model SensoriceDevice {
     id                  Int                  @id @default(autoincrement())
     machineId           String               @unique // Unique ID for the device
-    location            String
     createdAt           DateTime             @default(now()) // Device registration timestamp
     updatedAt           DateTime             @updatedAt // Last update timestamp
     readings            SensorReading[] // Relationship to sensor readings
     SensoriceIrrigation SensoriceIrrigation?
     User                User?                @relation(fields: [userId], references: [id])
     userId              Int?
+    field               field?               @relation(fields: [fieldId], references: [id])
+    fieldId             Int?
 }
 
 model SensorReading {
