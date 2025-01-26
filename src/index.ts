@@ -21,7 +21,7 @@ const app = express();
 // [CORS]
 const allowedOrigins = [
   "http://localhost:5173", // dev client
-  //   "https://onlyjun.xyz", // testing
+  "https://sensorice.onlyjun.xyz", // testing
 ];
 
 // [Global Middlewares]
